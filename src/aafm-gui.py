@@ -616,6 +616,8 @@ class Aafm_GUI:
 			self.aafm.move_to_host(full_device_path, full_host_path)
 			completed = completed + 1
 			self.refresh_host_files()
+			self.refresh_device_files()
+
 			self.update_progress(completed * 1.0 / total)
 
 			yield True

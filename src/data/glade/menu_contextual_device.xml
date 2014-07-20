@@ -13,6 +13,14 @@
       </object>
     </child>
     <child>
+      <object class="GtkMenuItem" id="menuDeviceMoveToComputer">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Move to computer</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="on_menuDeviceMoveToComputer_activate"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkSeparatorMenuItem" id="sepa">
         <property name="visible">True</property>
       </object>

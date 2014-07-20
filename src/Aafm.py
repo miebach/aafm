@@ -173,7 +173,11 @@ class Aafm:
 		return self._path_basename_function(path)
 
 
-	def copy_to_host(self, device_file, host_directory):
+	def move_to_host(self, device_file, host_directory):
+		return self.copy_to_host(device_file, host_directory, delete_after=True)
+
+
+	def copy_to_host(self, device_file, host_directory, delete_after=False):
 
 		# We can only copy to a destination path, not to a file
 		# TODO is this really needed?
@@ -198,12 +202,18 @@ class Aafm:
 			entries = self.parse_device_list(self.device_list_files(device_file))
 
 			for filename, entry in entries.iteritems():
-				self.copy_to_host(os.path.join(device_file, filename), final_host_directory)
+				self.copy_to_host(os.path.join(device_file, filename), final_host_directory, delete_after=delete_after)
+			if delete_after:
+				# now that it is empty we can delete the directory:
+				self.device_delete_item(device_file)
+
 		else:
 			host_file = os.path.join(host_directory, os.path.basename(device_file))
 			self.execute('%s pull %s "%s"' % (self.adb, self.device_escape_path( device_file ), host_file))
-	
-	
+			if delete_after:
+				# delete file from device:
+				self.device_delete_item(device_file)
+
 	def copy_to_device(self, host_file, device_directory):
 
 		if os.path.isfile( host_file ):

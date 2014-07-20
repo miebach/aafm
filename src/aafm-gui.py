@@ -26,6 +26,7 @@ class Aafm_GUI:
 
 	QUEUE_ACTION_COPY_TO_DEVICE = 'copy_to_device'
 	QUEUE_ACTION_COPY_FROM_DEVICE = 'copy_from_device'
+	QUEUE_ACTION_MOVE_FROM_DEVICE = 'move_from_device'
 	QUEUE_ACTION_MOVE_IN_DEVICE = 'move_in_device'
 	QUEUE_ACTION_MOVE_IN_HOST = 'move_in_host'
 
@@ -457,6 +458,7 @@ class Aafm_GUI:
 				'on_menuDeviceCreateDirectory_activate': self.on_device_create_directory_callback,
 				'on_menuDeviceRefresh_activate': self.on_device_refresh_callback,
 				'on_menuDeviceCopyToComputer_activate': self.on_device_copy_to_computer_callback,
+				'on_menuDeviceMoveToComputer_activate': self.on_device_move_to_computer_callback,
 				'on_menuDeviceRenameItem_activate': self.on_device_rename_item_callback
 			})
 
@@ -570,6 +572,11 @@ class Aafm_GUI:
 		task = self.copy_from_device_task(selected)
 		gobject.idle_add(task.next)
 
+	def on_device_move_to_computer_callback(self, widget):
+		selected = self.get_device_selected_files()
+		task = self.move_from_device_task(selected)
+		gobject.idle_add(task.next)
+
 
 	def copy_from_device_task(self, rows):
 		completed = 0
@@ -585,6 +592,28 @@ class Aafm_GUI:
 			full_host_path = self.host_cwd
 			
 			self.aafm.copy_to_host(full_device_path, full_host_path)
+			completed = completed + 1
+			self.refresh_host_files()
+			self.update_progress(completed * 1.0 / total)
+
+			yield True
+
+		yield False
+
+	def move_from_device_task(self, rows):
+		completed = 0
+		total = len(rows)
+
+		self.update_progress()
+
+		for row in rows:
+			filename = row['filename']
+			is_directory = row['is_directory']
+
+			full_device_path = self.aafm.device_path_join(self.device_cwd, filename)
+			full_host_path = self.host_cwd
+			
+			self.aafm.move_to_host(full_device_path, full_host_path)
 			completed = completed + 1
 			self.refresh_host_files()
 			self.update_progress(completed * 1.0 / total)
